@@ -1,4 +1,4 @@
-package controllers.reports;
+package controllers.follows;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,20 +13,19 @@ import javax.servlet.http.HttpServletResponse;
 
 import models.Employee;
 import models.Follow;
-import models.Report;
 import utils.DBUtil;
 
 /**
- * Servlet implementation class ReportIndexServlet
+ * Servlet implementation class FollowIndexServlet
  */
-@WebServlet("/reports/index")
-public class ReportIndexServlet extends HttpServlet {
+@WebServlet("/follows/index")
+public class FollowIndexServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ReportIndexServlet() {
+    public FollowIndexServlet() {
         super();
     }
 
@@ -36,7 +35,7 @@ public class ReportIndexServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         EntityManager em = DBUtil.createEntityManager();
 
-        Employee login_employee = (Employee)request.getSession().getAttribute("login_employee");
+        Employee login_employee = (Employee) request.getSession().getAttribute("login_employee");
 
         int page;
         try{
@@ -44,32 +43,24 @@ public class ReportIndexServlet extends HttpServlet {
         } catch(Exception e) {
             page = 1;
         }
-        List<Report> reports = em.createNamedQuery("getAllReports", Report.class)
+        List<Follow> follows = em.createNamedQuery("getMyAllFollows", Follow.class)
+                                  .setParameter("employee", login_employee)
                                   .setFirstResult(15 * (page - 1))
                                   .setMaxResults(15)
                                   .getResultList();
 
-        long reports_count = (long)em.createNamedQuery("getReportsCount", Long.class)
+        long follows_count = (long)em.createNamedQuery("getMyFollowsCount", Long.class)
+                                     .setParameter("employee", login_employee)
                                      .getSingleResult();
-
-        List<Follow> follows = em.createNamedQuery("getMyAllFollows", Follow.class)
-                            .setParameter("employee", login_employee)
-                            .getResultList();
 
         em.close();
 
         request.setAttribute("follows", follows);
-        request.setAttribute("reports", reports);
-        request.setAttribute("reports_count", reports_count);
+        request.setAttribute("follows_count", follows_count);
         request.setAttribute("page", page);
-        if(request.getSession().getAttribute("flush") != null) {
-            request.setAttribute("flush", request.getSession().getAttribute("flush"));
-            request.getSession().removeAttribute("flush");
-        }
 
-        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/reports/index.jsp");
+        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/follows/index.jsp");
         rd.forward(request, response);
     }
-
 
 }

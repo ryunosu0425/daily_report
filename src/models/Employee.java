@@ -58,6 +58,8 @@ public class Employee {
     @Column(name = "delete_flag", nullable = false)
     private Integer delete_flag;
 
+
+
     public Integer getId() {
         return id;
     }
@@ -121,4 +123,5 @@ public class Employee {
     public void setDelete_flag(Integer delete_flag) {
         this.delete_flag = delete_flag;
     }
+
 }
